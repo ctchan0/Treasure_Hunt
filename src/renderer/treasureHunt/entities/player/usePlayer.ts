@@ -14,12 +14,17 @@ export const usePlayer = () => {
             const { moveLeft, moveRight } = controls;
 
             const currentPos = rb.translation();
+            var nextXPos: number;
 
-            var nextXPos: number = currentPos.x;
             if (moveLeft && !moveRight) {
                 nextXPos = currentPos.x - player.movingSpd * delta;
+                setPlayer(prev => ({...prev, movementState: 'MOVE_LEFT'}))
             } else if (moveRight && !moveLeft) {
                 nextXPos = currentPos.x + player.movingSpd * delta;
+                setPlayer(prev => ({...prev, movementState: 'MOVE_RIGHT'}))
+            } else {
+                nextXPos = currentPos.x;
+                setPlayer(prev => ({...prev, movementState: 'STAND'}))
             }
 
             // Enforce boundary

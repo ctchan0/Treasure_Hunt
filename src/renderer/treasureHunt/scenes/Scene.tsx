@@ -1,5 +1,4 @@
 import { Physics } from '@react-three/rapier';
-import Obstacles from '../entities/obstacles/ObstacleManager';
 import { Player } from '../entities/player/Player';
 import { useUpdate } from '../common/utils/useUpdate';
 import FollowCamera from '../entities/camera/FollowCamera';
@@ -17,13 +16,11 @@ const Scene = () => {
 
     return (
         <group>
-            <PerspectiveCamera position={new Vector3(0, 0, -2)}/>
-                <ambientLight intensity={0.5} />
+            <ambientLight intensity={0.5} />
 
-                <Physics colliders={false}>
-                    <Player />
-                    <Obstacles />
-                </Physics>
+            <Physics colliders={false}>
+                <Player />
+            </Physics>
         </group>
     );
 };
