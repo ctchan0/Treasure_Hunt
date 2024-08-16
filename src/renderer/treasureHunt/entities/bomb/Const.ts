@@ -1,0 +1,1 @@
+export const DURATION_TIME = 5
