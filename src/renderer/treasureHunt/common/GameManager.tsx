@@ -19,6 +19,8 @@ import { END_TIME } from './constants/Constants';
 import { RigidBody } from '@dimforge/rapier3d-compat';
 import { usePlayer } from '../entities/player/usePlayer';
 import { PlayerState } from '../entities/player/PlayerState';
+import { useSpawn } from './utils/useSpawn';
+import { Vector3 } from 'three';
 
 const GameState = ['IDLE', 'READY', 'PLAYING', 'GAME_OVER'] as const;
 type GameState = (typeof GameState)[number];
@@ -35,6 +37,21 @@ type GameContextType = {
         resetMovement: (rb: RigidBody) => void;
         player: PlayerState;
     }
+    bullets: {
+        activeItems: {
+            id: number;
+            isActive: boolean;
+            state: Vector3;
+        }[];
+        items: React.MutableRefObject<{
+            id: number;
+            isActive: boolean;
+            state: Vector3;
+        }[]>;
+        spawn: (newItem: Vector3) => void;
+        disable: (checkUnused: (itemState: Vector3) => boolean) => void;
+        resetItems: () => void;
+    }
 };
 
 const GameContext = createContext<GameContextType>({} as GameContextType);
@@ -50,6 +67,7 @@ export default function GameManager({ children }: { children: React.ReactNode })
     const { music, startMusic, stopMusic, toggleMusicMute, resetMusic } = useBackgroundMusic();
     const { rankList, score, addScore, saveScore, resetScore } = useScore();
     const player = usePlayer()
+    const bullets = useSpawn<Vector3>();
 
     useEffect(() => {
         if (gameState != 'READY') return;
@@ -141,9 +159,10 @@ export default function GameManager({ children }: { children: React.ReactNode })
             deductHealth,
             playTime,
             addResetListener,
-            player
+            player,
+            bullets
         }),
-        [gameState, playTime, controls, health, addResetListener, player]
+        [gameState, playTime, controls, health, addResetListener, player, bullets]
     );
 
     const gameUI = useMemo(() => {

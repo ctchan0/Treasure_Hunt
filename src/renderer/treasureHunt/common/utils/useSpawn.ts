@@ -1,54 +1,70 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 export const useSpawn = <T>() => {
-    const [items, setItems] = useState<{ id: number; isActive: boolean; state: T }[]>([]);
+    const items = useRef<{ id: number; isActive: boolean; state: T }[]>([])
+
+    // (obsolete)
+    // const add = useCallback(
+    //     (itemState: T) => {
+    //         setItems((prev) => {
+    //             const newItems = [...prev, { id: prev.length, isActive: true, state: itemState }];
+    //             console.log("Add: ", newItems)
+    //             // ensure working with the latest state
+    //             return newItems;
+    //         });
+    //         // console.log(items) // items won't update immediately
+    //         items.current = [...items.current, { id: items.current.length, isActive: true, state: itemState }];
+    //     },
+    //     [items]
+    // );
 
     const add = useCallback(
         (itemState: T) => {
-            setItems(prev => [...prev, { id: items.length, isActive: true, state: itemState }]);
+            items.current = [...items.current, { id: items.current.length, isActive: true, state: itemState }];
         },
-        [items]
+        [items.current]
     );
 
     const enable = useCallback(
         (id: number, itemState: T) => {
-            setItems(prev => prev.map(i => (i.id === id ? { id: id, isActive: true, state: itemState } : i)));
+            items.current = items.current.map(i => (i.id === id ? { id: id, isActive: true, state: itemState } : i));
         },
-        [items]
+        [items.current]
     );
 
     const resetItems = useCallback(() => {
-        setItems([]);
+        items.current = [];
     }, []);
 
     const spawn = useCallback(
         (newItem: T) => {
-            const inactiveItem = items.find(i => i.isActive === false);
+            // items won't update immediately due to asynchronous nature of state updates 
+            // thus inactiveItem will always be the same despite that that inactiveItem is set to be active before
+            const inactiveItem = items.current.find(i => i.isActive === false);
             if (inactiveItem) {
                 enable(inactiveItem.id, newItem);
             } else {
                 add(newItem);
             }
         },
-        [items]
+        [items.current]
     );
 
     const disable = useCallback(
         (checkUnused: (itemState: T) => boolean) => {
-            setItems(prev => prev.map(i => (checkUnused(i.state) ? { ...i, isActive: false } : i)));
+            items.current = items.current.map(i => (checkUnused(i.state) ? { ...i, isActive: false } : i));
         },
-        [items]
+        [items.current]
     );
 
     return useMemo(
         () => ({
-            activeItems: items.filter(i => i.isActive),
+            activeItems: items.current.filter(i => i.isActive),
             items,
-            setItems,
             spawn,
             disable,
             resetItems,
         }),
-        [items]
+        [items.current]
     );
 };

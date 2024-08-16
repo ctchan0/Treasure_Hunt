@@ -6,6 +6,7 @@ import { useGame } from '../common/GameManager';
 import { ParticleSystem } from '../entities/visualEffect/ParticleSystem';
 import { Vector3 } from 'three';
 import { PerspectiveCamera } from '@react-three/drei';
+import { Bomb } from '../entities/bomb/Bomb';
 
 const Scene = () => {
     const { playTime } = useGame();
@@ -20,7 +21,9 @@ const Scene = () => {
 
             <Physics colliders={false}>
                 <Player />
+                <Bomb isActive={true} position={new Vector3(0,2 ,0)}/>
             </Physics>
+
         </group>
     );
 };
