@@ -16,9 +16,9 @@ import { useScore } from './systems/stats/useScore';
 import { useLevel } from './systems/stats/useLevel';
 import { useHealth } from './systems/stats/useHealth';
 import { END_TIME } from './constants/Constants';
-import { usePlayerMovement } from './systems/player/usePlayerMovement';
-import { PlayerMovementState } from './states/PlayerState';
 import { RigidBody } from '@dimforge/rapier3d-compat';
+import { usePlayer } from '../entities/player/usePlayer';
+import { PlayerState } from '../entities/player/PlayerState';
 
 const GameState = ['IDLE', 'READY', 'PLAYING', 'GAME_OVER'] as const;
 type GameState = (typeof GameState)[number];
@@ -30,9 +30,11 @@ type GameContextType = {
     deductHealth: (damage: number) => void;
     playTime: number;
     addResetListener: (listener: Function) => void;
-    playerMovement: PlayerMovementState;
-    resetMovement: (rb: RigidBody) => void;
-    checkMove: (rb: RigidBody, controls: InputControlsState, delta: number) => void;
+    player : {
+        checkMove: (rb: RigidBody, controls: InputControlsState, delta: number) => void;
+        resetMovement: (rb: RigidBody) => void;
+        player: PlayerState;
+    }
 };
 
 const GameContext = createContext<GameContextType>({} as GameContextType);
@@ -47,7 +49,7 @@ export default function GameManager({ children }: { children: React.ReactNode })
     const { controls, resetControls } = useKeyboard();
     const { music, startMusic, stopMusic, toggleMusicMute, resetMusic } = useBackgroundMusic();
     const { rankList, score, addScore, saveScore, resetScore } = useScore();
-    const { playerMovement, resetMovement, checkMove } = usePlayerMovement();
+    const player = usePlayer()
 
     useEffect(() => {
         if (gameState != 'READY') return;
@@ -139,11 +141,9 @@ export default function GameManager({ children }: { children: React.ReactNode })
             deductHealth,
             playTime,
             addResetListener,
-            playerMovement,
-            resetMovement,
-            checkMove,
+            player
         }),
-        [gameState, playTime, controls, health, addResetListener, playerMovement]
+        [gameState, playTime, controls, health, addResetListener, player]
     );
 
     const gameUI = useMemo(() => {

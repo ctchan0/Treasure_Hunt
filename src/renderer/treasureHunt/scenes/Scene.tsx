@@ -24,8 +24,6 @@ const Scene = () => {
                     <Player />
                     <Obstacles />
                 </Physics>
-
-                <ParticleSystem count={20} />
         </group>
     );
 };
